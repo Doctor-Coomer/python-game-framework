@@ -9,7 +9,10 @@ class Line:
         self.y2 = y2;
         self.color = color;
         self.width = width;
-
+    def delete(self):
+        self.index = -1; #setting the index to be negative will cause it to be ignored
+        del self;
+        
 class FillRectangle:
     def __init__(self, index:int, x:int, y:int,
                  width:int, height:int, color:tuple):
@@ -19,3 +22,6 @@ class FillRectangle:
         self.width = width;
         self.height = height;
         self.color = color;
+    def delete(self):
+        self.index = -1;
+        del self;
