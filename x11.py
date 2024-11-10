@@ -28,12 +28,11 @@ class window:
     def create_win(self, width:int, height:int, resizable:bool, title:str):
         if self.window_is_open == True:
             log.printy("game_framework.spawn_window() -> window.create_win(): window already created");
-            return;        
+            return;
         self.window = self.root_window.create_window(0,0,width,height,1,
                                                      self.screen.root_depth,
                                                      X.InputOutput,
                                                      X.CopyFromParent,
-                                                     background_pixel=self.screen.white_pixel,
                                                      event_mask=X.ExposureMask | X.KeyPressMask
                                                      );
         if resizable == False:
