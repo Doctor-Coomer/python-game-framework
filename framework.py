@@ -26,11 +26,11 @@ class game_framework:
           return self.x_win.is_x11_key_down(ord(key));
      
      def create_line(self, x1:int, y1:int,
-                     x2:int, y2:int, color:int=[]*3,
+                     x2:int, y2:int, color:int=[0,0,0],
                      width:int=2, style:str="solid"):
           return self.x_win.create_x11_line_with_color(x1,y1,x2,y2,color,width,style);
      
      def create_rectangle(self, x:int, y:int,
-                          width:int, height:int, color:int=[]*3, filled:bool=True, edge_width:int=2):
+                          width:int, height:int, color:int=[0,0,0], filled:bool=True, edge_width:int=2):
           return self.x_win.create_x11_rectangle_with_color(x,y,width,height,color,filled,edge_width);
 

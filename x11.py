@@ -129,12 +129,12 @@ class window:
         keycode = list(keycodemap)[0][0]
         return ((self.keys[keycode//8]) & (1 << (keycode % 8)) != 0);
         
-    def create_x11_line_with_color(self, x1:int, y1:int, x2:int, y2:int, color:int=[]*3, width:int=2, style:str="solid"):
+    def create_x11_line_with_color(self, x1:int, y1:int, x2:int, y2:int, color:int=[0,0,0], width:int=2, style:str="solid"):
         line = sprites.Line(len(self.sprites_array), x1, y1, x2, y2, color, width, style);
         self.sprites_array.append(line);
         return line;
 
-    def create_x11_rectangle_with_color(self, x:int, y:int, width:int, height:int, color:int=[]*3, filled:bool=True, edge_width:int=2):
+    def create_x11_rectangle_with_color(self, x:int, y:int, width:int, height:int, color:int=[0,0,0], filled:bool=True, edge_width:int=2):
         rectangle = sprites.Rectangle(len(self.sprites_array), x, y, width, height, color, filled, edge_width);
         self.sprites_array.append(rectangle);
         return rectangle;

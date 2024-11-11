@@ -1,6 +1,6 @@
 class Line:
     def __init__(self, index:int, x1:int, y1:int,
-                 x2:int, y2:int, color:int=[]*3,
+                 x2:int, y2:int, color:int=[0,0,0],
                  width:int=2, style:str="solid"):
         self.index = index;
         self.x1 = x1;
@@ -22,7 +22,7 @@ class Line:
 class Rectangle:
     def __init__(self, index:int, x:int, y:int,
                  width:int, height:int,
-                 color:int=[]*3, filled:bool=True,
+                 color:int=[0,0,0], filled:bool=True,
                  edge_width:int=2):
         self.index = index;
         self.x = x;
