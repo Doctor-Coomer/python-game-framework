@@ -35,3 +35,15 @@ class Rectangle:
     def delete(self):
         self.index = -1;
         del self;
+
+class Text:
+    def __init__(self, index:int, x:int, y:int,
+                 text:str, color:int=[0,0,0]):
+        self.index = index;
+        self.x = x;
+        self.y = y;
+        self.text = text;
+        self.color = color;
+    def delete(self):
+        self.index = -1;
+        del self;

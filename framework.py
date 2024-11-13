@@ -19,11 +19,14 @@ class game_framework:
      def spawn_window(self, width:int=250, height:int=250, resizable:bool=False, title:str="") -> None:
           self.x_win.create_win(width,height,resizable,title);
           
-     def window_resolution(self) -> tuple:
+     def get_window_resolution(self) -> tuple:
           return self.x_win.get_window_resolution();
 
      def is_key_down(self, key:str) -> bool:
           return self.x_win.is_x11_key_down(ord(key));
+
+     def get_arrow_keys(self):
+          return self.x_win.get_x11_arrow_keys_down();
      
      def create_line(self, x1:int, y1:int,
                      x2:int, y2:int, color:int=[0,0,0],

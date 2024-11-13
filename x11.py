@@ -1,8 +1,10 @@
 from Xlib import display, X, XK, Xutil, Xatom, ext
 import threading
 import time
+import math
 
 import sprites
+import key_struct
 
 from log import log
 
@@ -62,7 +64,7 @@ class window:
             #primary render loop
 
             self.keys = self.display.query_keymap(); #refresh the key map on the window thread
-            
+
             self.window_width  = self.window.get_geometry()._data['width'];
             self.window_height = self.window.get_geometry()._data['height'];
 
@@ -96,11 +98,37 @@ class window:
                 if type(sprite) == sprites.Line:
                     gc.change(line_width=sprite.width,
                               line_style=sprite.style);
-                              
+
+                    """
+                    delta_x:int = sprite.x2-sprite.x1;
+                    if delta_x == 0:
+                        delta_x = 0.00000001;
+                    delta_y:int = sprite.y2-sprite.y1;
+                    if delta_y == 0:
+                        delta_y = 0.00000001;
+                    """
+                    #f(x) = mx+b
+
+
+                    #m:float = (delta_y/delta_x)
+                    """
+                    for x in range(sprite.x2-sprite.x1):
+                        y:int = int(m*x)
+                        pixmap.point(gc,
+                                     x, y);
+
+                
+                    for y in range(sprite.y2-sprite.y1):
+                        x:int = int(y/m)
+                        pixmap.point(gc,
+                                     x, y);
+                    """    
+                    
                     pixmap.line(gc,
                                 sprite.x1, sprite.y1,
                                 sprite.x2, sprite.y2,
                                 );
+                    
                 elif type(sprite) == sprites.Rectangle:
                     if sprite.filled == False:
                         gc.change(line_width=sprite.edge_width,
@@ -128,6 +156,18 @@ class window:
         keycodemap = self.display.keysym_to_keycodes(key);
         keycode = list(keycodemap)[0][0]
         return ((self.keys[keycode//8]) & (1 << (keycode % 8)) != 0);
+
+    def get_x11_arrow_keys_down(self):
+        return key_struct.Arrow_keys(
+            (self.keys[13] & 128 != 0), #up
+            (self.keys[14] & 16 != 0), #down
+            (self.keys[14] & 2 != 0), #left
+            (self.keys[14] & 4 != 0) #right
+        );
+    
+    def custom_draw_x11_line(self, x1:int, y1:int, x2:int, y2:int):
+        ...
+        
         
     def create_x11_line_with_color(self, x1:int, y1:int, x2:int, y2:int, color:int=[0,0,0], width:int=2, style:str="solid"):
         line = sprites.Line(len(self.sprites_array), x1, y1, x2, y2, color, width, style);
