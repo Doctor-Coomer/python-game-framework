@@ -149,6 +149,7 @@ class window:
             #free the graphics context and pixmap
             gc.free();
             pixmap.free();
+            self.display.flush();
         log.printg("game_framework.spawn_window() -> window.create_win() -> window.render_loop(): exited");
         return;
 
@@ -187,6 +188,7 @@ class window:
         color = colormap.alloc_color(int((red/255) * 65535),
                                      int((green/255) * 65535),
                                      int((blue/255) * 65535));
+        colormap.free();
         gc.change(foreground=color.pixel);
 
     def get_window_resolution(self) -> tuple:
@@ -201,6 +203,8 @@ class window:
             log.printr("game_framework.stop_game() -> window.elegant_exit(): window.render_loop() stopped")
         else:
             log.printy("game_framework.stop_game() -> window.elegant_exit(): window.render_loop() is probably already stopped")
+        self.window.destroy();
+        self.display.close();
 
 
 
