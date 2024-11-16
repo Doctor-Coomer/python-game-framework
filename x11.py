@@ -142,6 +142,11 @@ class window:
                                               sprite.x, sprite.y,
                                               sprite.width, sprite.height
                                               );
+                elif type(sprite) == sprites.Text:
+                    pixmap.draw_text(gc,
+                                     sprite.x, sprite.y,
+                                     sprite.text
+                                     );
 
             #swap the pixmap buffer to the window graphics 
             self.window.copy_area(gc, pixmap, 0, 0, self.window_width, self.window_height, 0, 0);
@@ -179,6 +184,11 @@ class window:
         rectangle = sprites.Rectangle(len(self.sprites_array), x, y, width, height, color, filled, edge_width);
         self.sprites_array.append(rectangle);
         return rectangle;
+
+    def create_x11_text_with_color(self, x:int, y:int, text:str, color:int=[0,0,0]):
+        text = sprites.Text(len(self.sprites_array), x, y, text, color);
+        self.sprites_array.append(text);
+        return text;
         
     def change_gc_color(self, gc, red:int, green:int, blue:int):
         if red > 255 or green > 255 or blue > 255:

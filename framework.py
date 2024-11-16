@@ -37,3 +37,6 @@ class game_framework:
                           width:int, height:int, color:int=[0,0,0], filled:bool=True, edge_width:int=2):
           return self.x_win.create_x11_rectangle_with_color(x,y,width,height,color,filled,edge_width);
 
+     def create_text(self, x:int, y:int,
+                     text:str, color:int=[0,0,0]):
+          return self.x_win.create_x11_text_with_color(x,y,text,color);
