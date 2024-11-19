@@ -2,6 +2,7 @@ from Xlib import display, X, XK, Xutil, Xatom, ext
 import threading
 import time
 import math
+import subprocess
 
 import sprites
 import key_struct
@@ -20,12 +21,12 @@ class window:
     keys = [];
 
     def __init__(self):
+        log.printg("game_framework.__init__() -> window.__init__(): called");
         self.display = display.Display();
         self.screen = self.display.screen();
-        self.root_window = self.screen.root;            
+        self.root_window = self.screen.root;
         self.keys = self.display.query_keymap();
-        log.printg("game_framework.__init__() -> window.__init__(): called");
-
+        self.window_fps = (1000*1000)/float(subprocess.check_output("xrandr | grep \"\\*\" | awk {\'print $2\'} | grep -Eo \'[0-9.0-9]+\'", shell=True, text=True))/(1000000);
     
     def create_win(self, width:int, height:int, resizable:bool, title:str):
         if self.window_is_open == True:
@@ -98,37 +99,10 @@ class window:
                 if type(sprite) == sprites.Line:
                     gc.change(line_width=sprite.width,
                               line_style=sprite.style);
-
-                    """
-                    delta_x:int = sprite.x2-sprite.x1;
-                    if delta_x == 0:
-                        delta_x = 0.00000001;
-                    delta_y:int = sprite.y2-sprite.y1;
-                    if delta_y == 0:
-                        delta_y = 0.00000001;
-                    """
-                    #f(x) = mx+b
-
-
-                    #m:float = (delta_y/delta_x)
-                    """
-                    for x in range(sprite.x2-sprite.x1):
-                        y:int = int(m*x)
-                        pixmap.point(gc,
-                                     x, y);
-
-                
-                    for y in range(sprite.y2-sprite.y1):
-                        x:int = int(y/m)
-                        pixmap.point(gc,
-                                     x, y);
-                    """    
-                    
                     pixmap.line(gc,
                                 sprite.x1, sprite.y1,
                                 sprite.x2, sprite.y2,
-                                );
-                    
+                                );                    
                 elif type(sprite) == sprites.Rectangle:
                     if sprite.filled == False:
                         gc.change(line_width=sprite.edge_width,
@@ -147,10 +121,9 @@ class window:
                                      sprite.x, sprite.y,
                                      sprite.text
                                      );
-
             #swap the pixmap buffer to the window graphics 
             self.window.copy_area(gc, pixmap, 0, 0, self.window_width, self.window_height, 0, 0);
-            time.sleep(0.0033333333333330005); #magic number (causes it to loop at roughly 300 frames per second)
+            time.sleep(self.window_fps); #magic number (causes it to loop at roughly 300 frames per second)
             #free the graphics context and pixmap
             gc.free();
             pixmap.free();
@@ -166,13 +139,37 @@ class window:
     def get_x11_arrow_keys_down(self):
         return key_struct.Arrow_keys(
             (self.keys[13] & 128 != 0), #up
-            (self.keys[14] & 16 != 0), #down
-            (self.keys[14] & 2 != 0), #left
-            (self.keys[14] & 4 != 0) #right
+            (self.keys[14] & 16  != 0), #down
+            (self.keys[14] & 2   != 0), #left
+            (self.keys[14] & 4   != 0) #right
         );
     
     def custom_draw_x11_line(self, x1:int, y1:int, x2:int, y2:int):
-        ...
+        """
+        delta_x:int = sprite.x2-sprite.x1;
+        if delta_x == 0:
+            delta_x = 0.00000001;
+        delta_y:int = sprite.y2-sprite.y1;
+        if delta_y == 0:
+            delta_y = 0.00000001;
+        """
+        #f(x) = mx+b
+        #m:float = (delta_y/delta_x)
+        """
+        for x in range(sprite.x2-sprite.x1):
+            y:int = int(m*x)
+            pixmap.point(gc,
+                         x, y
+        );
+
+                
+        for y in range(sprite.y2-sprite.y1):
+            x:int = int(y/m)
+            pixmap.point(gc,
+                        x, y
+        );
+        """    
+
         
         
     def create_x11_line_with_color(self, x1:int, y1:int, x2:int, y2:int, color:int=[0,0,0], width:int=2, style:str="solid"):
