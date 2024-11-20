@@ -79,7 +79,6 @@ class window:
                 cap_style  = X.CapButt,
                 join_style = X.JoinMiter
             );
-
     
             #draw background
             gc.change(foreground=self.screen.white_pixel); #TODO: make the native background color customizable

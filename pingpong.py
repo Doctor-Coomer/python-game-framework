@@ -9,8 +9,8 @@ from math import *
 game = framework.game_framework(); #create a game instance
 
 #constants
-WIDTH = 550;
-HEIGHT = 450;
+WIDTH = 300;
+HEIGHT = 300;
 
 LEFT = False;
 RIGHT = True;
@@ -29,14 +29,14 @@ p2 = game.create_rectangle(x=WIDTH-30, y=HEIGHT//2 - (40), width=10, height=90, 
 p2m = game.create_line(x1=p2.x, y1=(p2.y+p2.y+p2.height)//2, x2=p2.x+p2.width, y2=(p2.y+p2.y+p2.height)//2, width=2, color=[190,190,190])
 
 #ball
-ball_dir = game.create_line(x1=WIDTH//2, y1=HEIGHT//2 + (2), x2=WIDTH//2-100, y2=HEIGHT//2, color=[25,200,0])
+ball_dir = game.create_line(x1=0, y1=HEIGHT//2, x2=WIDTH, y2=HEIGHT//2, color=[25,200,0])
 ball = game.create_rectangle(x=WIDTH//2, y=HEIGHT//2, width=5, height=5)
-
-#menu text
-start_text = game.create_text(x=WIDTH//2 - (50), y=HEIGHT//2-50, text="Press Space")
 
 #creates a new window
 game.spawn_window(width=WIDTH, height=HEIGHT);
+
+#menu text
+start_text = game.create_text(x=WIDTH//2 - (50), y=HEIGHT//2-50, text="Press Space")
 
 #pause game until they are ready
 while game.is_key_down(" ") != True:
@@ -48,12 +48,13 @@ horizontal_direction:bool = LEFT;
 virtical_slope:float = 0.0;
 y_intercept = ball.y;
 while True:
+    #get key inputs
     arrowkeys = game.get_arrow_keys();
     
     wkey:bool = game.is_key_down("w");
     skey:bool = game.is_key_down("s");
 
-    #game end detection
+    #game end detection, and reset
     if ball.x <= 0:
         p1_text = game.create_text(x=WIDTH//2 - (50), y=HEIGHT//2, text="Player 2 wins", color=[255,0,0]);
         restart_text = game.create_text(x=WIDTH//2 - (50), y=HEIGHT//2 - (35), text="Press Space to Restart")
@@ -153,13 +154,8 @@ while True:
     #y = mx+b
     ball.y=int(virtical_slope*ball.x+y_intercept);
 
-    #move direction helper
-    ball_dir.x1=ball.x;
-    ball_dir.y1=ball.y+2;
-    if horizontal_direction == LEFT:
-        ball_dir.x2=ball.x-100;
-    if horizontal_direction == RIGHT:
-        ball_dir.x2=ball.x+100;    
+    #update ball direction helper
+    ball_dir.y1=int(y_intercept);
     ball_dir.y2=int(virtical_slope*ball_dir.x2+y_intercept);
 
-    time.sleep(0.025);
+    time.sleep(0.025); #1/40 of a second
