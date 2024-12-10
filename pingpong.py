@@ -9,28 +9,30 @@ from math import *
 game = framework.game_framework(); #create a game instance
 
 #constants
-WIDTH = 300;
-HEIGHT = 300;
+SCALE = 1
+
+WIDTH = int(300*SCALE);
+HEIGHT = int(300*SCALE);
 
 LEFT = False;
 RIGHT = True;
 
-PAD_SPEED = 6;
-BALL_SPEED = 7;
+PAD_SPEED = int(6*SCALE);
+BALL_SPEED = int(7*SCALE);
 
 #sprites are rendered in order of when they are defined
 
 #player 1
-p1 = game.create_rectangle(x=10, y=HEIGHT//2 - (40), width=10, height=90, color=[0,0,255])
-p1m = game.create_line(x1=p1.x, y1=(p1.y+p1.y+p1.height)//2, x2=p1.x+p1.width, y2=(p1.y+p1.y+p1.height)//2, width=2, color=[190,190,190])
+p1 = game.create_rectangle(x=10, y=HEIGHT//2 - int(45*SCALE), width=int(10*SCALE), height=int(90*SCALE), color=[0,0,255])
+p1m = game.create_line(x1=p1.x, y1=(p1.y+p1.y+p1.height)//2, x2=p1.x+p1.width, y2=(p1.y+p1.y+p1.height)//2, width=int(2*SCALE), color=[190,190,190])
 
 #player 2
-p2 = game.create_rectangle(x=WIDTH-30, y=HEIGHT//2 - (40), width=10, height=90, color=[255,0,0])
-p2m = game.create_line(x1=p2.x, y1=(p2.y+p2.y+p2.height)//2, x2=p2.x+p2.width, y2=(p2.y+p2.y+p2.height)//2, width=2, color=[190,190,190])
+p2 = game.create_rectangle(x=WIDTH-30, y=HEIGHT//2 - int(45*SCALE), width=int(10*SCALE), height=int(90*SCALE), color=[255,0,0])
+p2m = game.create_line(x1=p2.x, y1=(p2.y+p2.y+p2.height)//2, x2=p2.x+p2.width, y2=(p2.y+p2.y+p2.height)//2, width=int(2*SCALE), color=[190,190,190])
 
 #ball
 ball_dir = game.create_line(x1=0, y1=HEIGHT//2, x2=WIDTH, y2=HEIGHT//2, color=[25,200,0])
-ball = game.create_rectangle(x=WIDTH//2, y=HEIGHT//2, width=5, height=5)
+ball = game.create_rectangle(x=WIDTH//2, y=HEIGHT//2, width=int(5*SCALE), height=int(5*SCALE))
 
 #creates a new window
 game.spawn_window(width=WIDTH, height=HEIGHT);
@@ -129,11 +131,13 @@ while True:
         
     #ball detection with paddles
     if ((ball.x <= p1.x+p1.width or ball.x+ball.width <= p1.x+p1.width) and (ball.x >= p1.x or ball.x+ball.width >= p1.x)) and ball.y >= p1.y and ball.y <= p1.y+p1.height:
+        ball_dir.color = p1.color
         horizontal_direction = RIGHT;
         new_virtical_slope:float = ((ball.y-p1m.y1)/(p1m.y1-p1.y))/2;
         y_intercept = (virtical_slope*ball.x)+y_intercept-(new_virtical_slope*ball.x);
         virtical_slope = new_virtical_slope;
-    if ((ball.x >= p2.x-(p2.width//2)+5 or ball.x+ball.width >= p2.x-(p2.width//2)+5) and (ball.x <= p2.x or ball.x+ball.width <= p2.x)) and ball.y >= p2.y and ball.y <= p2.y+p2.height:
+    if ((ball.x >= p2.x-(p2.width//2) or ball.x+ball.width >= p2.x-(p2.width//2)) and (ball.x <= p2.x or ball.x+ball.width <= p2.x)) and ball.y >= p2.y and ball.y <= p2.y+p2.height:
+        ball_dir.color = p2.color
         horizontal_direction = LEFT;
         new_virtical_slope:float = ((p2m.y1-ball.y)/(p1m.y1-p1.y))/2;
         y_intercept = (virtical_slope*ball.x)+y_intercept-(new_virtical_slope*ball.x);
