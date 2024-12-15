@@ -9,7 +9,7 @@ from math import *
 game = framework.game_framework(); #create a game instance
 
 #constants
-SCALE = 1
+SCALE = 2
 
 WIDTH = int(300*SCALE);
 HEIGHT = int(300*SCALE);

@@ -19,7 +19,7 @@ class window:
     sprites_array = [];
 
     keys = [];
-
+    
     def __init__(self):
         log.printg("game_framework.__init__() -> window.__init__(): called");
         self.display = display.Display();
@@ -28,7 +28,7 @@ class window:
         self.keys = self.display.query_keymap();
         self.window_fps = (1000*1000)/float(subprocess.check_output("xrandr | grep \"\\*\" | awk {\'print $2\'} | grep -Eo \'[0-9.0-9]+\'", shell=True, text=True))/(1000000);
     
-    def create_win(self, width:int, height:int, resizable:bool, title:str):
+    def create_win(self, width:int=250, height:int=250, resizable:bool=False, title:str=""):
         if self.window_is_open == True:
             log.printy("game_framework.spawn_window() -> window.create_win(): window already created");
             return;
