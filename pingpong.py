@@ -11,7 +11,7 @@ game = framework.game_framework(); #create a game instance
 #constants
 SCALE = 2
 
-WIDTH = int(300*SCALE);
+WIDTH = int(500*SCALE);
 HEIGHT = int(300*SCALE);
 
 LEFT = False;

@@ -29,8 +29,13 @@ game.spawn_window(width=WIDTH, height=HEIGHT);
 #will fail to create a second window
 game.spawn_window(width=WIDTH, height=HEIGHT); #logs a warning
 
+t = game.create_text(x=40, y=10, text="FPS: -")
+
 #game logic loop
 while True:
+    if (game.get_window_fps() != 0):
+        t.text = "FPS: " + str(game.get_window_fps())
+
     if game.is_key_down("w") == True and game.is_key_down("s") == True:
         ...
     elif game.is_key_down("w"):

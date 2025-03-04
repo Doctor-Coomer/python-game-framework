@@ -3,16 +3,29 @@ import threading
 import time
 import math
 import subprocess
+from collections import namedtuple
 
 import sprites
 import key_struct
 
 from log import log
 
+MyGeom = namedtuple('MyGeom', 'x y height width')
+
 class window:
     window_is_open:bool = False;
+
+    window_target_fps:float = 0;
+    window_fps:float = 0;
+    
     window_width:int = 0;
     window_height:int = 0;
+
+    window_x:int = 0;
+    window_y:int = 0;
+    
+    cursor_x:int = 0;
+    cursor_y:int = 0;
 
     stop_render_loop:bool = True;
 
@@ -26,8 +39,10 @@ class window:
         self.screen = self.display.screen();
         self.root_window = self.screen.root;
         self.keys = self.display.query_keymap();
-        self.window_fps = (1000*1000)/float(subprocess.check_output("xrandr | grep \"\\*\" | awk {\'print $2\'} | grep -Eo \'[0-9.0-9]+\'", shell=True, text=True))/(1000000);
-    
+        self.window_target_fps = (1)/float(subprocess.check_output("xrandr | grep primary -A 1 | grep \"\\*\" | awk {\'print $2\'} | grep -Eo \'[0-9.0-9]+\'", shell=True, text=True).replace("\n", ''));
+        #print(self.window_target_fps)
+        #self.window_target_fps = 0.008333333 #60 fps
+        
     def create_win(self, width:int=250, height:int=250, resizable:bool=False, title:str=""):
         if self.window_is_open == True:
             log.printy("game_framework.spawn_window() -> window.create_win(): window already created");
@@ -59,15 +74,55 @@ class window:
         
     def render_loop(self):
         log.printg("game_framework.spawn_window() -> window.create_win() -> window.render_loop(): entered")
+        fps_count:int = 0
+        t1 = time.time()
+        t2 = time.time()
+        t_difference = t2 - t1
         while True:
             if self.stop_render_loop == True:
                 break;            
             #primary render loop
 
+            fps_count += 1
+
+            """
+            if fps_count == 60:
+                fps_count = 0
+                t1 = t2
+                t2 = time.time()
+                t_difference = t2 - t1
+                print(t_difference)
+            """
+            
+            t2 = time.time()
+
+            if t2 - t1 >= 1:
+                #print(fps_count)
+                self.window_fps = fps_count
+                fps_count = 0
+                #print(t2-t1)
+                t1 = time.time()
+                
             self.keys = self.display.query_keymap(); #refresh the key map on the window thread
 
             self.window_width  = self.window.get_geometry()._data['width'];
             self.window_height = self.window.get_geometry()._data['height'];
+
+            
+            org_win = self.window            
+            geom = org_win.get_geometry()
+            (self.window_x, self.window_y) = (geom.x, geom.y)
+            while True:
+                parent = org_win.query_tree().parent 
+                pgeom = parent.get_geometry()
+                self.window_x += pgeom.x
+                self.window_y += pgeom.y
+                if parent.id == self.root_window.id:
+                    break
+                org_win = parent
+
+            self.cursor_x = self.root_window.query_pointer().root_x - self.window_x
+            self.cursor_y = self.root_window.query_pointer().root_y - self.window_y
 
             #allocate the graphics context and pixmap
             pixmap = self.window.create_pixmap(self.window_width, self.window_height, self.screen.root_depth)
@@ -122,7 +177,7 @@ class window:
                                      );
             #swap the pixmap buffer to the window graphics 
             self.window.copy_area(gc, pixmap, 0, 0, self.window_width, self.window_height, 0, 0);
-            time.sleep(self.window_fps); #magic number (causes it to loop at roughly 300 frames per second)
+            time.sleep(self.window_target_fps);
             #free the graphics context and pixmap
             gc.free();
             pixmap.free();
@@ -199,7 +254,16 @@ class window:
 
     def get_window_resolution(self) -> tuple:
         return (self.window_width, self.window_height);
-        
+    
+    def get_window_location(self) -> tuple:
+        return (self.window_x, self.window_y)
+
+    def get_cursor_location(self) -> tuple:
+        return (self.cursor_x, self.cursor_y)
+
+    def get_window_fps(self) -> float:
+        return self.window_fps
+    
     def elegant_exit(self):
         log.printr("game_framework.stop_game() -> window.elegant_exit(): called")
         if self.stop_render_loop != True:

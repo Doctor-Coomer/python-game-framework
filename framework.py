@@ -22,6 +22,9 @@ class game_framework:
      def get_window_resolution(self) -> tuple:
           return self.x_win.get_window_resolution();
 
+     def get_window_fps(self) -> float:
+          return self.x_win.get_window_fps();
+     
      def is_key_down(self, key:str) -> bool:
           return self.x_win.is_x11_key_down(ord(key));
 
