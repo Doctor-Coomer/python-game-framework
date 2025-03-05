@@ -26,7 +26,10 @@ class window:
     
     cursor_x:int = 0;
     cursor_y:int = 0;
-
+    mouse_left:bool = False;
+    mouse_middle:bool = False;
+    mouse_right:bool = False;
+    
     stop_render_loop:bool = True;
 
     sprites_array = [];
@@ -77,7 +80,6 @@ class window:
         fps_count:int = 0
         t1 = time.time()
         t2 = time.time()
-        t_difference = t2 - t1
         while True:
             if self.stop_render_loop == True:
                 break;            
@@ -95,9 +97,8 @@ class window:
             """
             
             t2 = time.time()
-
             if t2 - t1 >= 1:
-                #print(fps_count)
+                #log.printg(fps_count)
                 self.window_fps = fps_count
                 fps_count = 0
                 #print(t2-t1)
@@ -108,22 +109,32 @@ class window:
             self.window_width  = self.window.get_geometry()._data['width'];
             self.window_height = self.window.get_geometry()._data['height'];
 
-            
             org_win = self.window            
             geom = org_win.get_geometry()
+            (tmp_window_x, tmp_window_y) = (geom.x, geom.y)
             (self.window_x, self.window_y) = (geom.x, geom.y)
             while True:
                 parent = org_win.query_tree().parent 
                 pgeom = parent.get_geometry()
-                self.window_x += pgeom.x
-                self.window_y += pgeom.y
+                tmp_window_x += pgeom.x
+                tmp_window_y += pgeom.y
                 if parent.id == self.root_window.id:
                     break
                 org_win = parent
 
+            self.window_x = tmp_window_x
+            self.window_y = tmp_window_y
+                
             self.cursor_x = self.root_window.query_pointer().root_x - self.window_x
             self.cursor_y = self.root_window.query_pointer().root_y - self.window_y
 
+            self.mouse_left   = (self.root_window.query_pointer().mask & 256  != 0)
+            self.mouse_middle = (self.root_window.query_pointer().mask & 512  != 0)
+            self.mouse_right  = (self.root_window.query_pointer().mask & 1024 != 0)
+
+            
+            #print(self.root_window.query_pointer().mask)
+            
             #allocate the graphics context and pixmap
             pixmap = self.window.create_pixmap(self.window_width, self.window_height, self.screen.root_depth)
             gc = pixmap.create_gc(
@@ -136,7 +147,7 @@ class window:
             );
     
             #draw background
-            gc.change(foreground=self.screen.white_pixel); #TODO: make the native background color customizable
+            gc.change(foreground=self.screen.white_pixel); # ?: make the native background color customizable
             pixmap.fill_rectangle(gc,0,0,self.window_width,self.window_height);
 
             #draw the sprites
@@ -177,7 +188,8 @@ class window:
                                      );
             #swap the pixmap buffer to the window graphics 
             self.window.copy_area(gc, pixmap, 0, 0, self.window_width, self.window_height, 0, 0);
-            time.sleep(self.window_target_fps);
+            #time.sleep(self.window_target_fps);
+            time.sleep(1/300);
             #free the graphics context and pixmap
             gc.free();
             pixmap.free();
@@ -195,9 +207,12 @@ class window:
             (self.keys[13] & 128 != 0), #up
             (self.keys[14] & 16  != 0), #down
             (self.keys[14] & 2   != 0), #left
-            (self.keys[14] & 4   != 0) #right
+            (self.keys[14] & 4   != 0)  #right
         );
-    
+
+    def get_pointer(self):
+        return key_struct.Mouse(self.cursor_x, self.cursor_y, self.mouse_left, self.mouse_right, self.mouse_middle)
+        
     def custom_draw_x11_line(self, x1:int, y1:int, x2:int, y2:int):
         """
         delta_x:int = sprite.x2-sprite.x1;
@@ -258,7 +273,7 @@ class window:
     def get_window_location(self) -> tuple:
         return (self.window_x, self.window_y)
 
-    def get_cursor_location(self) -> tuple:
+    def get_pointer_location(self) -> tuple:
         return (self.cursor_x, self.cursor_y)
 
     def get_window_fps(self) -> float:

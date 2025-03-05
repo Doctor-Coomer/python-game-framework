@@ -24,6 +24,9 @@ class game_framework:
 
      def get_window_fps(self) -> float:
           return self.x_win.get_window_fps();
+
+     def get_mouse(self) -> tuple:
+          return self.x_win.get_pointer()
      
      def is_key_down(self, key:str) -> bool:
           return self.x_win.is_x11_key_down(ord(key));

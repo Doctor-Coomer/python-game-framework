@@ -16,7 +16,11 @@ class Line:
                 self.style = 1; #Xlib.X.LineOnOffDash
                 
     def delete(self):
-        self.index = -1; #setting the index to be negative will cause it to be ignored
+        self.index = -1; #setting the index to be negative will cause it to be ignored 
+        self.x1 = 32767;
+        self.y1 = 32767;
+        self.x2 = 32767;
+        self.y2 = 32767;      
         del self;
         
 class Rectangle:
@@ -34,6 +38,10 @@ class Rectangle:
         self.edge_width = edge_width;
     def delete(self):
         self.index = -1;
+        self.x = 32767;
+        self.y = 32767;
+        self.width = 32767;
+        self.height = 32767;
         del self;
 
 class Text:
@@ -46,4 +54,6 @@ class Text:
         self.color = color;
     def delete(self):
         self.index = -1;
+        self.x = 32767;
+        self.y = 32767;
         del self;
