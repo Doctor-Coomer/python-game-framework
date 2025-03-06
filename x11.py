@@ -10,19 +10,19 @@ import key_struct
 
 from log import log
 
-MyGeom = namedtuple('MyGeom', 'x y height width')
-
 class window:
     window_is_open:bool = False;
 
     window_target_fps:float = 0;
-    window_fps:float = 0;
+    window_fps:float = -1;
     
     window_width:int = 0;
     window_height:int = 0;
 
     window_x:int = 0;
     window_y:int = 0;
+
+    window_bg:int = [255, 255, 255]
     
     cursor_x:int = 0;
     cursor_y:int = 0;
@@ -42,11 +42,9 @@ class window:
         self.screen = self.display.screen();
         self.root_window = self.screen.root;
         self.keys = self.display.query_keymap();
-        self.window_target_fps = (1)/float(subprocess.check_output("xrandr | grep primary -A 1 | grep \"\\*\" | awk {\'print $2\'} | grep -Eo \'[0-9.0-9]+\'", shell=True, text=True).replace("\n", ''));
-        #print(self.window_target_fps)
-        #self.window_target_fps = 0.008333333 #60 fps
+        self.window_target_fps = float(subprocess.check_output("xrandr | grep primary -A 1 | grep \"\\*\" | awk {\'print $2\'} | grep -Eo \'[0-9.0-9]+\'", shell=True, text=True).replace("\n", ''));
         
-    def create_win(self, width:int=250, height:int=250, resizable:bool=False, title:str=""):
+    def create_win(self, width:int=250, height:int=250, resizable:bool=False, title:str="", color:int=[255, 255, 255]):
         if self.window_is_open == True:
             log.printy("game_framework.spawn_window() -> window.create_win(): window already created");
             return;
@@ -67,6 +65,7 @@ class window:
             self.window.set_wm_normal_hints(size_hints);
         self.window_height = height;
         self.window_width = width;
+        self.window_bg = color;
         self.window.map();
         self.window_is_open = True;
         self.stop_render_loop = False;
@@ -133,8 +132,6 @@ class window:
             self.mouse_right  = (self.root_window.query_pointer().mask & 1024 != 0)
 
             
-            #print(self.root_window.query_pointer().mask)
-            
             #allocate the graphics context and pixmap
             pixmap = self.window.create_pixmap(self.window_width, self.window_height, self.screen.root_depth)
             gc = pixmap.create_gc(
@@ -147,53 +144,50 @@ class window:
             );
     
             #draw background
-            gc.change(foreground=self.screen.white_pixel); # ?: make the native background color customizable
+            self.change_gc_color(gc, self.window_bg); # ?: make the native background color customizable
             pixmap.fill_rectangle(gc,0,0,self.window_width,self.window_height);
-
+            
             #draw the sprites
             for sprite in self.sprites_array:
                 if sprite.index == -1:
                     self.sprites_array.remove(sprite);
                     continue;
                 
-                self.change_gc_color(gc,
-                                     sprite.color[0],
-                                     sprite.color[1],
-                                     sprite.color[2]);
+                self.change_gc_color(gc, sprite.color);
 
-                if type(sprite) == sprites.Line:
-                    gc.change(line_width=sprite.width,
-                              line_style=sprite.style);
-                    pixmap.line(gc,
-                                sprite.x1, sprite.y1,
-                                sprite.x2, sprite.y2,
-                                );                    
-                elif type(sprite) == sprites.Rectangle:
-                    if sprite.filled == False:
-                        gc.change(line_width=sprite.edge_width,
-                                  line_style=X.LineSolid);
-                        pixmap.rectangle(gc,
+                match type(sprite):
+                    case sprites.Line:
+                        gc.change(line_width=sprite.width,
+                                  line_style=sprite.style);
+                        pixmap.line(gc,
+                                    sprite.x1, sprite.y1,
+                                    sprite.x2, sprite.y2,
+                                    );                    
+                    case sprites.Rectangle:
+                        if sprite.filled == False:
+                            gc.change(line_width=sprite.edge_width,
+                                      line_style=X.LineSolid);
+                            pixmap.rectangle(gc,
+                                             sprite.x, sprite.y,
+                                             sprite.width, sprite.height
+                                             );
+                        elif sprite.filled == True:
+                            pixmap.fill_rectangle(gc,
+                                                  sprite.x, sprite.y,
+                                                  sprite.width, sprite.height
+                                                  );
+                    case sprites.Text:
+                        pixmap.draw_text(gc,
                                          sprite.x, sprite.y,
-                                         sprite.width, sprite.height
+                                         sprite.text
                                          );
-                    elif sprite.filled == True:
-                        pixmap.fill_rectangle(gc,
-                                              sprite.x, sprite.y,
-                                              sprite.width, sprite.height
-                                              );
-                elif type(sprite) == sprites.Text:
-                    pixmap.draw_text(gc,
-                                     sprite.x, sprite.y,
-                                     sprite.text
-                                     );
             #swap the pixmap buffer to the window graphics 
             self.window.copy_area(gc, pixmap, 0, 0, self.window_width, self.window_height, 0, 0);
-            #time.sleep(self.window_target_fps);
-            time.sleep(1/300);
+            time.sleep(1/self.window_target_fps);
             #free the graphics context and pixmap
             gc.free();
             pixmap.free();
-            self.display.flush();
+            #self.display.flush();
         log.printg("game_framework.spawn_window() -> window.create_win() -> window.render_loop(): exited");
         return;
 
@@ -213,34 +207,6 @@ class window:
     def get_pointer(self):
         return key_struct.Mouse(self.cursor_x, self.cursor_y, self.mouse_left, self.mouse_right, self.mouse_middle)
         
-    def custom_draw_x11_line(self, x1:int, y1:int, x2:int, y2:int):
-        """
-        delta_x:int = sprite.x2-sprite.x1;
-        if delta_x == 0:
-            delta_x = 0.00000001;
-        delta_y:int = sprite.y2-sprite.y1;
-        if delta_y == 0:
-            delta_y = 0.00000001;
-        """
-        #f(x) = mx+b
-        #m:float = (delta_y/delta_x)
-        """
-        for x in range(sprite.x2-sprite.x1):
-            y:int = int(m*x)
-            pixmap.point(gc,
-                         x, y
-        );
-
-                
-        for y in range(sprite.y2-sprite.y1):
-            x:int = int(y/m)
-            pixmap.point(gc,
-                        x, y
-        );
-        """    
-
-        
-        
     def create_x11_line_with_color(self, x1:int, y1:int, x2:int, y2:int, color:int=[0,0,0], width:int=2, style:str="solid"):
         line = sprites.Line(len(self.sprites_array), x1, y1, x2, y2, color, width, style);
         self.sprites_array.append(line);
@@ -256,14 +222,14 @@ class window:
         self.sprites_array.append(text);
         return text;
         
-    def change_gc_color(self, gc, red:int, green:int, blue:int):
-        if red > 255 or green > 255 or blue > 255:
+    def change_gc_color(self, gc, color:int=[255,255,255]):
+        if color[0] > 255 or color[1] > 255 or color[2] > 255:
             log.printy("window.change_gc_color(): invalid color range");
             return;
         colormap = self.root_window.create_colormap(self.screen.root_visual, X.AllocNone);
-        color = colormap.alloc_color(int((red/255) * 65535),
-                                     int((green/255) * 65535),
-                                     int((blue/255) * 65535));
+        color = colormap.alloc_color(int((color[0]/255) * 65535),
+                                     int((color[1]/255) * 65535),
+                                     int((color[2]/255) * 65535));
         colormap.free();
         gc.change(foreground=color.pixel);
 

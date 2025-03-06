@@ -16,8 +16,8 @@ class game_framework:
           log.printr("game_framework.stop_game(): calling sys.exit()")
           sys.exit();
           
-     def spawn_window(self, width:int=250, height:int=250, resizable:bool=False, title:str="") -> None:
-          self.x_win.create_win(width,height,resizable,title);
+     def spawn_window(self, width:int=250, height:int=250, resizable:bool=False, title:str="", color:int=[255,255,255]) -> None:
+          self.x_win.create_win(width,height,resizable,title,color);
           
      def get_window_resolution(self) -> tuple:
           return self.x_win.get_window_resolution();

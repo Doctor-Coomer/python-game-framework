@@ -40,6 +40,9 @@ game.spawn_window(width=WIDTH, height=HEIGHT);
 #menu text
 start_text = game.create_text(x=WIDTH//2 - (50), y=HEIGHT//2-50, text="Press Space")
 
+#fps text top left
+fps = game.create_text(x=10, y=15, text="FPS: -", color=[0,0,0])
+
 #pause game until they are ready
 while game.is_key_down(" ") != True:
     time.sleep(0.025);
@@ -50,6 +53,11 @@ horizontal_direction:bool = LEFT;
 virtical_slope:float = 0.0;
 y_intercept = ball.y;
 while True:
+    #update FPS
+    if (game.get_window_fps() != -1):
+        fps.text = "FPS: " + str(game.get_window_fps())
+
+
     #get key inputs
     arrowkeys = game.get_arrow_keys();
     
