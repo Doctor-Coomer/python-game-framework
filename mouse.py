@@ -11,18 +11,30 @@ game = framework.game_framework()
 WIDTH = 700
 HEIGHT = 700
 
-BOX_SIZE = 100
+BOX_WIDTH = 0
+for i in range(WIDTH//(WIDTH//100), 1, -1):
+    if WIDTH%i == 0:
+        BOX_WIDTH = i
+        break
 
+BOX_HEIGHT = 0
+for i in range(HEIGHT//(HEIGHT//100), 1, -1):
+    if HEIGHT%i == 0:
+        BOX_HEIGHT = i
+        break
+
+
+    
 VIRTICAL_FADE = 40
 HORIZONTAL_FADE = 40
 
 
 #initialize the array
 b_arr = [] #2D array
-for i in range(WIDTH//BOX_SIZE):
+for i in range(WIDTH//BOX_WIDTH):
     b_tmp = []
-    for h in range(HEIGHT//BOX_SIZE):
-        b_tmp.append(game.create_rectangle(x=i*BOX_SIZE, y=h*BOX_SIZE, width=BOX_SIZE, height=BOX_SIZE, color=[255, i*VIRTICAL_FADE%255, h*HORIZONTAL_FADE%255]))
+    for h in range(HEIGHT//BOX_HEIGHT):
+        b_tmp.append(game.create_rectangle(x=i*BOX_WIDTH, y=h*BOX_HEIGHT, width=BOX_WIDTH, height=BOX_HEIGHT, color=[255, i*VIRTICAL_FADE%255, h*HORIZONTAL_FADE%255]))
     b_arr.append(b_tmp)
     
 #menu text
