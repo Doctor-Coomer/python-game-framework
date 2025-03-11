@@ -144,7 +144,7 @@ class window:
             );
     
             #draw background
-            self.change_gc_color(gc, self.window_bg); # ?: make the native background color customizable
+            self.change_gc_color(gc, self.window_bg);
             pixmap.fill_rectangle(gc,0,0,self.window_width,self.window_height);
             
             #draw the sprites

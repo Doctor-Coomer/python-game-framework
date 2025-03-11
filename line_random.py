@@ -1,3 +1,5 @@
+#!/bin/python
+
 import framework
 
 from time import sleep

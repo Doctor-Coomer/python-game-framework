@@ -51,8 +51,6 @@ while True:
     line4.y1 = HEIGHT//2
     line4.x2 = int((WIDTH//2) - sin(i-h)*200)
     line4.y2 = int((HEIGHT//2) + cos(i+h)*200)
-
-    
     
     i+=0.1
     h+=0.05
