@@ -17,10 +17,6 @@ class Line:
                 
     def delete(self):
         self.index = -1; #setting the index to be negative will cause it to be ignored 
-        self.x1 = 32767;
-        self.y1 = 32767;
-        self.x2 = 32767;
-        self.y2 = 32767;      
         del self;
         
 class Rectangle:
@@ -38,10 +34,6 @@ class Rectangle:
         self.edge_width = edge_width;
     def delete(self):
         self.index = -1;
-        self.x = 32767;
-        self.y = 32767;
-        self.width = 32767;
-        self.height = 32767;
         del self;
 
 class Text:
@@ -54,6 +46,19 @@ class Text:
         self.color = color;
     def delete(self):
         self.index = -1;
-        self.x = 32767;
-        self.y = 32767;
+        del self;
+
+class Circle:
+    def __init__(self, index:int, x:int, y:int,
+                 width:int, height:int, color:int=[0,0,0],
+                 filled:bool=True):
+        self.index = index;
+        self.x = x;
+        self.y = y;
+        self.width = width;
+        self.height = height;
+        self.color = color;
+        self.filled = filled;
+    def delete(self):
+        self.index = -1;
         del self;

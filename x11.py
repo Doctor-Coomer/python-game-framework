@@ -181,6 +181,15 @@ class window:
                                          sprite.x, sprite.y,
                                          sprite.text
                                          );
+                    case sprites.Circle:
+                        if sprite.filled == True:
+                            pixmap.fill_arc(gc, sprite.x, sprite.y,
+                                       sprite.width, sprite.height,
+                                       0, 365*65);
+                        elif sprite.filled == False:
+                            pixmap.arc(gc, sprite.x, sprite.y,
+                                       sprite.width, sprite.height,
+                                       0, 365*65);    
             #swap the pixmap buffer to the window graphics 
             self.window.copy_area(gc, pixmap, 0, 0, self.window_width, self.window_height, 0, 0);
             time.sleep(1/self.window_target_fps);
@@ -216,12 +225,17 @@ class window:
         rectangle = sprites.Rectangle(len(self.sprites_array), x, y, width, height, color, filled, edge_width);
         self.sprites_array.append(rectangle);
         return rectangle;
-
+    
     def create_x11_text_with_color(self, x:int, y:int, text:str, color:int=[0,0,0]):
         text = sprites.Text(len(self.sprites_array), x, y, text, color);
         self.sprites_array.append(text);
         return text;
-        
+
+    def create_x11_circle_with_color(self, x:int, y:int, width:int, height:int, color:int=[0,0,0], filled:bool=True):
+        circle = sprites.Circle(len(self.sprites_array), x, y, width, height, color, filled)
+        self.sprites_array.append(circle);
+        return circle;
+    
     def change_gc_color(self, gc, color:int=[255,255,255]):
         if color[0] > 255 or color[1] > 255 or color[2] > 255:
             log.printy("window.change_gc_color(): invalid color range");

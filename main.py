@@ -29,13 +29,14 @@ game.spawn_window(width=WIDTH, height=HEIGHT, color=[0,0,0]);
 #will fail to create a second window
 game.spawn_window(width=WIDTH, height=HEIGHT); #logs a warning
 
-t = game.create_text(x=40, y=10, text="FPS: -", color=[255,255,255])
+# FPS display
+fps = game.create_text(x=40, y=10, text="FPS: -", color=[255,255,255])
 
 #game logic loop
 while True:
+    # Update FPS
     if (game.get_window_fps() != -1):
-        #t.y = game.get_window_fps()
-        t.text = "FPS: " + str(game.get_window_fps())
+        fps.text = "FPS: " + str(game.get_window_fps())
 
     if game.is_key_down("w") == True and game.is_key_down("s") == True:
         ...

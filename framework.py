@@ -46,3 +46,8 @@ class game_framework:
      def create_text(self, x:int, y:int,
                      text:str, color:int=[0,0,0]):
           return self.x_win.create_x11_text_with_color(x,y,text,color);
+
+     def create_circle(self, x:int, y:int,
+                       width:int, height:int, color:int=[0,0,0],
+                       filled:bool=True):
+          return self.x_win.create_x11_circle_with_color(x,y,width,height,color,filled)

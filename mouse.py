@@ -41,6 +41,9 @@ for i in range(WIDTH//BOX_WIDTH):
 start_text = game.create_text(x=20, y=20, text="Press space to play and restart", color=[0, 255, 0])
 start_text_instruction = game.create_text(x=20, y=35, text="Click on squares to delete them", color=[0, 255, 0])
 
+# FPS display
+fps = game.create_text(x=20, y=HEIGHT-15, text="FPS: -", color=[0, 0, 0])
+
 #display window
 game.spawn_window(width=WIDTH, height=HEIGHT)
 
@@ -55,6 +58,9 @@ pressed = True
 
 #main gameplay loop
 while True:
+    if (game.get_window_fps() != -1):
+        fps.text = "FPS: " + str(game.get_window_fps())
+
     mouse = game.get_mouse()
 
     #if they press space then restart
