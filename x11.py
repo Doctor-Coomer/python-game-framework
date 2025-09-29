@@ -23,6 +23,10 @@ class window:
     window_y:int = 0;
 
     window_bg:int = [255, 255, 255]
+
+    draw_step:bool = False;
+    draw_step_ready:bool = False;
+    draw_step_count:int  = 0;
     
     cursor_x:int = 0;
     cursor_y:int = 0;
@@ -42,9 +46,9 @@ class window:
         self.screen = self.display.screen();
         self.root_window = self.screen.root;
         self.keys = self.display.query_keymap();
-        self.window_target_fps = float(subprocess.check_output("xrandr | grep primary -A 1 | grep \"\\*\" | awk {\'print $2\'} | grep -Eo \'[0-9.0-9]+\'", shell=True, text=True).replace("\n", ''));
+        self.window_target_fps = 300#float(subprocess.check_output("xrandr | grep primary -A 1 | grep \"\\*\" | awk {\'print $2\'} | grep -Eo \'[0-9.0-9]+\'", shell=True, text=True).replace("\n", ''));
         
-    def create_win(self, width:int=250, height:int=250, resizable:bool=False, title:str="", color:int=[255, 255, 255]):
+    def create_win(self, width:int=250, height:int=250, resizable:bool=False, title:str="", color:int=[255, 255, 255], step:bool=False):
         if self.window_is_open == True:
             log.printy("game_framework.spawn_window() -> window.create_win(): window already created");
             return;
@@ -67,12 +71,17 @@ class window:
         self.window_width = width;
         self.window_bg = color;
         self.window.map();
+        self.draw_step = step;
         self.window_is_open = True;
         self.stop_render_loop = False;
         self.display.flush();
         self.render_thread = threading.Thread(None, self.render_loop);
         self.render_thread.start();
         return;
+
+    def step_win(self):
+        self.draw_step_count += 1;
+        self.draw_step_ready = True;
         
     def render_loop(self):
         log.printg("game_framework.spawn_window() -> window.create_win() -> window.render_loop(): entered")
@@ -81,7 +90,12 @@ class window:
         t2 = time.time()
         while True:
             if self.stop_render_loop == True:
-                break;            
+                break;
+
+            if self.draw_step == True and self.draw_step_ready == False and self.draw_step_count == 0:
+                time.sleep(1/self.window_target_fps);
+                continue;
+
             #primary render loop
 
             fps_count += 1
@@ -189,7 +203,11 @@ class window:
                         elif sprite.filled == False:
                             pixmap.arc(gc, sprite.x, sprite.y,
                                        sprite.width, sprite.height,
-                                       0, 365*65);    
+                                       0, 365*65);
+                    case sprites.Point:
+                        if sprite.x > 32767 or sprite.x < -32767 or sprite.y > 32767 or sprite.y < -32767:
+                            continue;
+                        pixmap.point(gc, sprite.x, sprite.y);
             #swap the pixmap buffer to the window graphics 
             self.window.copy_area(gc, pixmap, 0, 0, self.window_width, self.window_height, 0, 0);
             time.sleep(1/self.window_target_fps);
@@ -197,6 +215,10 @@ class window:
             gc.free();
             pixmap.free();
             #self.display.flush();
+            if self.draw_step == True and self.draw_step_ready == True or self.draw_step_count > 0:
+                self.draw_step_ready = False;
+                self.draw_step_count -= 1;
+                
         log.printg("game_framework.spawn_window() -> window.create_win() -> window.render_loop(): exited");
         return;
 
@@ -232,10 +254,15 @@ class window:
         return text;
 
     def create_x11_circle_with_color(self, x:int, y:int, width:int, height:int, color:int=[0,0,0], filled:bool=True):
-        circle = sprites.Circle(len(self.sprites_array), x, y, width, height, color, filled)
+        circle = sprites.Circle(len(self.sprites_array), x, y, width, height, color, filled);
         self.sprites_array.append(circle);
         return circle;
-    
+
+    def create_x11_point_with_color(self, x:int, y:int, color:int=[0,0,0]):
+        point = sprites.Point(len(self.sprites_array), x, y, color);
+        self.sprites_array.append(point);
+        return point;
+        
     def change_gc_color(self, gc, color:int=[255,255,255]):
         if color[0] > 255 or color[1] > 255 or color[2] > 255:
             log.printy("window.change_gc_color(): invalid color range");

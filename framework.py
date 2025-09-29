@@ -16,8 +16,12 @@ class game_framework:
           log.printr("game_framework.stop_game(): calling sys.exit()")
           sys.exit();
           
-     def spawn_window(self, width:int=250, height:int=250, resizable:bool=False, title:str="", color:int=[255,255,255]) -> None:
-          self.x_win.create_win(width,height,resizable,title,color);
+     def spawn_window(self, width:int=250, height:int=250, resizable:bool=False, title:str="", color:int=[255,255,255], draw_stepping:bool=False) -> None:
+          self.x_win.create_win(width,height,resizable,title,color,draw_stepping);
+
+     def step_window(self): 
+          self.x_win.step_win();
+          self.x_win.step_win(); # Need to step two frames for things to update for some reason, TODO/FIXME?
           
      def get_window_resolution(self) -> tuple:
           return self.x_win.get_window_resolution();
@@ -51,3 +55,6 @@ class game_framework:
                        width:int, height:int, color:int=[0,0,0],
                        filled:bool=True):
           return self.x_win.create_x11_circle_with_color(x,y,width,height,color,filled)
+
+     def create_point(self, x:int, y:int, color:int=[0,0,0]):
+          return self.x_win.create_x11_point_with_color(x,y,color);

@@ -62,3 +62,14 @@ class Circle:
     def delete(self):
         self.index = -1;
         del self;
+
+
+class Point:
+    def __init__(self, index:int, x:int, y:int, color:int=[0,0,0]):
+        self.index = index;
+        self.x = x;
+        self.y = y;
+        self.color = color;
+    def delete(self):
+        self.index = -1;
+        del self;

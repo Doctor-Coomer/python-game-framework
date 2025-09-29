@@ -1,7 +1,5 @@
-from setuptools import (__version__ as setuptools_version, setup)
+from setuptools import setup, find_packages
 
 setup(
-    packages=[
-        'python-game-framework',
-    ],
+    packages=find_packages('src', exclude=['test'])
 )
