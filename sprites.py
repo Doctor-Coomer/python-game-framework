@@ -36,14 +36,21 @@ class Rectangle:
         self.index = -1;
         del self;
 
+class Font:
+    def __init__(self, xfont, width:int, height:int):
+        self.xfont = xfont;
+        self.a = xfont;
+        self.width = width;
+        self.height = height;
 class Text:
     def __init__(self, index:int, x:int, y:int,
-                 text:str, color:int=[0,0,0]):
+                 text:str, color:int=[0,0,0], font:Font=None):
         self.index = index;
         self.x = x;
         self.y = y;
         self.text = text;
         self.color = color;
+        self.font = font;
     def delete(self):
         self.index = -1;
         del self;

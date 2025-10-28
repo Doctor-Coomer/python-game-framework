@@ -21,7 +21,9 @@ class game_framework:
 
      def step_window(self): 
           self.x_win.step_win();
-          self.x_win.step_win(); # Need to step two frames for things to update for some reason, TODO/FIXME?
+
+     def is_drawing(self):
+          return self.x_win.is_drawing_frame;
           
      def get_window_resolution(self) -> tuple:
           return self.x_win.get_window_resolution();
@@ -31,6 +33,9 @@ class game_framework:
 
      def get_mouse(self) -> tuple:
           return self.x_win.get_pointer()
+
+     def get_font_names(self) -> list:
+          return self.x_win.get_font_list();
      
      def is_key_down(self, key:str) -> bool:
           return self.x_win.is_x11_key_down(ord(key));
@@ -48,9 +53,12 @@ class game_framework:
           return self.x_win.create_x11_rectangle_with_color(x,y,width,height,color,filled,edge_width);
 
      def create_text(self, x:int, y:int,
-                     text:str, color:int=[0,0,0]):
-          return self.x_win.create_x11_text_with_color(x,y,text,color);
+                     text:str, color:int=[0,0,0], font=None):
+          return self.x_win.create_x11_text_with_color(x,y,text,color,font);
 
+     def create_font(self, name:str=""):
+          return self.x_win.create_x11_font(name);
+     
      def create_circle(self, x:int, y:int,
                        width:int, height:int, color:int=[0,0,0],
                        filled:bool=True):
