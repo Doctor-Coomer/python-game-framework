@@ -38,7 +38,7 @@ class window:
     
     stop_render_loop:bool = True;
 
-    gc_tmp = None;
+    pixmap = None;
     pixmap_tmp = None;
 
     sprites_array = [];
@@ -147,24 +147,26 @@ class window:
             self.mouse_middle = (self.root_window.query_pointer().mask & 512  != 0)
             self.mouse_right  = (self.root_window.query_pointer().mask & 1024 != 0)
 
+            #allocate the graphics context and pixmap
+            if self.pixmap == None:
+                self.pixmap = self.window.create_pixmap(self.window_width, self.window_height, self.screen.root_depth)
+            gc = self.pixmap.create_gc(
+                foreground = self.screen.black_pixel,
+                background = self.screen.white_pixel,
+                line_width = 2,
+                line_style = X.LineSolid,
+                cap_style  = X.CapButt,
+                join_style = X.JoinMiter,
+                font = self.default_font
+            );
+
             if self.draw_step_mode == False or self.draw_step_ready == True:
-                #allocate the graphics context and pixmap
-                pixmap = self.window.create_pixmap(self.window_width, self.window_height, self.screen.root_depth)
-                gc = pixmap.create_gc(
-                    foreground = self.screen.black_pixel,
-                    background = self.screen.white_pixel,
-                    line_width = 2,
-                    line_style = X.LineSolid,
-                    cap_style  = X.CapButt,
-                    join_style = X.JoinMiter,
-                    font = self.default_font
-                );
 
                 #print(f"\n\n\n\n\n\n\n\n{gc.query()}\n\n\n\n\n\n\n\n")
     
                 #draw background
                 self.change_gc_color(gc, self.window_bg);
-                pixmap.fill_rectangle(gc,0,0,self.window_width,self.window_height);
+                self.pixmap.fill_rectangle(gc,0,0,self.window_width,self.window_height);
             
                 #draw the sprites
                 i:int = 0;
@@ -185,7 +187,7 @@ class window:
                                 continue;
                             gc.change(line_width=sprite.width,
                                       line_style=sprite.style);
-                            pixmap.line(gc,
+                            self.pixmap.line(gc,
                                         sprite.x1, sprite.y1,
                                         sprite.x2, sprite.y2,
                                         );                    
@@ -193,12 +195,12 @@ class window:
                             if sprite.filled == False:
                                 gc.change(line_width=sprite.edge_width,
                                           line_style=X.LineSolid);
-                                pixmap.rectangle(gc,
+                                self.pixmap.rectangle(gc,
                                                  sprite.x, sprite.y,
                                                  sprite.width, sprite.height
                                                  );
                             elif sprite.filled == True:
-                                pixmap.fill_rectangle(gc,
+                                self.pixmap.fill_rectangle(gc,
                                                       sprite.x, sprite.y,
                                                       sprite.width, sprite.height
                                                       );
@@ -209,33 +211,31 @@ class window:
                                 gc.change(font=sprite.font.xfont);
                             except:
                                 gc.change(font=self.default_font);
-                            pixmap.draw_text(gc,
+                            self.pixmap.draw_text(gc,
                                              sprite.x, sprite.y,
                                              sprite.text
                                              );
                         case sprites.Circle:
                             if sprite.filled == True:
-                                pixmap.fill_arc(gc, sprite.x, sprite.y,
+                                self.pixmap.fill_arc(gc, sprite.x, sprite.y,
                                                 sprite.width, sprite.height,
                                                 0, 365*65);
                             elif sprite.filled == False:
-                                pixmap.arc(gc, sprite.x, sprite.y,
+                                self.pixmap.arc(gc, sprite.x, sprite.y,
                                            sprite.width, sprite.height,
                                            0, 365*65);
                         case sprites.Point:
                             if sprite.x > 32767 or sprite.x < -32767 or sprite.y > 32767 or sprite.y < -32767:
                                 continue;
-                            pixmap.point(gc, sprite.x, sprite.y);
+                            self.pixmap.point(gc, sprite.x, sprite.y);
                     i+=1;
                 #swap the pixmap buffer to the window graphics 
-                self.gc_tmp = gc;
-                self.pixmap_tmp = pixmap;
-                self.window.copy_area(gc, pixmap, 0, 0, self.window_width, self.window_height, 0, 0);
+                self.window.copy_area(gc, self.pixmap, 0, 0, self.window_width, self.window_height, 0, 0);
                 #free the graphics context and pixmap
 
                 if self.draw_step_mode == False:
-                    gc.free();
-                    pixmap.free();
+                    self.pixmap.free();
+                    self.pixmap = None;
                 
                 if self.draw_step_mode == True:
                     self.draw_step_ready = False;
@@ -247,10 +247,10 @@ class window:
                 if self.draw_step_count > 100:
                 self.draw_step_count = 99
                 """
+            if self.pixmap != None:
+                self.window.copy_area(gc, self.pixmap, 0, 0, self.window_width, self.window_height, 0, 0);
             self.is_drawing_frame = False;
-
-            if self.gc_tmp != None and self.pixmap_tmp != None:
-                self.window.copy_area(self.gc_tmp, self.pixmap_tmp, 0, 0, self.window_width, self.window_height, 0, 0);
+            gc.free();
             time.sleep(1/self.window_target_fps);
             
         log.printg("game_framework.spawn_window() -> window.create_win() -> window.render_loop(): exited");
