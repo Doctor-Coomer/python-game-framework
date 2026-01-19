@@ -1,7 +1,7 @@
 # python-game-framework
 The game framework with no name. Using primarily the X11 protocol for the window, rendering, and input detection. Having Xorg doing some of the processing instead of the python interpreter should theoretically use less system resources, in comparison to doing software rendering with python alone.
 
-![looppgf](https://github.com/user-attachments/assets/0bdaff5c-d4b5-40cb-9d24-d8a19c23d8e8)
+![looppgf](https://raw.githubusercontent.com/Doctor-Coomer/python-game-framework/refs/heads/main/example.gif)
 
 # Dependencies
 `Xorg/XWayland python3 python-xlib`
